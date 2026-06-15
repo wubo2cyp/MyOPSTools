@@ -30,14 +30,14 @@ export function Composer({ disabled, isRunning, onSend, onStop }: Props) {
   };
 
   return (
-    <div className="flex items-end gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-2 focus-within:border-accent/60 focus-within:ring-2 focus-within:ring-accent/20">
+    <div className="flex items-end gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-2 focus-within:border-accent/60 focus-within:ring-2 focus-within:ring-accent/20 dark:border-zinc-700 dark:bg-zinc-800">
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={onKey}
         rows={1}
         placeholder={disabled ? "请先选择一个会话…" : "向 Agent 发送消息，Enter 发送，Shift+Enter 换行"}
-        className="flex-1 resize-none bg-transparent px-2 py-1.5 text-sm text-zinc-800 placeholder-zinc-400 focus:outline-none"
+        className="flex-1 resize-none bg-transparent px-2 py-1.5 text-sm text-zinc-800 placeholder-zinc-400 focus:outline-none dark:text-zinc-100 dark:placeholder-zinc-500"
         disabled={disabled}
       />
       {isRunning ? (

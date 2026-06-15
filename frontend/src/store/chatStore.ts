@@ -1,15 +1,9 @@
 import { create } from "zustand";
 import type { Message, Session, ToolCall } from "@shared/types";
 
-export interface ToolCallState {
-  call: ToolCall;
-  output?: string;
-  error?: string;
-}
-
 export interface AssistantBuffer {
   id: string;
-  toolCalls: ToolCallState[];
+  toolCalls: { call: ToolCall; output?: string; error?: string }[];
   text: string;
 }
 
@@ -22,6 +16,8 @@ interface ChatState {
   /** Transient streaming buffer for the active assistant turn. */
   streaming: AssistantBuffer | null;
   isRunning: boolean;
+  /** Global error state for the active session (shown in ErrorBanner). */
+  error: { code: string; message: string } | null;
 
   setSessions: (s: Session[]) => void;
   setActiveSession: (id: string | null) => void;
@@ -38,11 +34,12 @@ interface ChatState {
   failStream: (code: string, message: string) => void;
   setRunning: (running: boolean) => void;
 
+  // Error controls
+  setError: (code: string, message: string) => void;
+  clearError: () => void;
+
   reset: () => void;
 }
-
-let _tmpCounter = 0;
-const newId = () => `tmp-${Date.now()}-${_tmpCounter++}`;
 
 export const useChatStore = create<ChatState>((set) => ({
   sessions: [],
@@ -51,9 +48,10 @@ export const useChatStore = create<ChatState>((set) => ({
   toolResults: {},
   streaming: null,
   isRunning: false,
+  error: null,
 
   setSessions: (sessions) => set({ sessions }),
-  setActiveSession: (id) => set({ activeSessionId: id, messages: [], streaming: null, toolResults: {} }),
+  setActiveSession: (id) => set({ activeSessionId: id, messages: [], streaming: null, toolResults: {}, error: null }),
   setMessages: (messages) => set({ messages }),
   appendMessage: (m) => set((s) => ({ messages: [...s.messages, m] })),
 
@@ -61,6 +59,7 @@ export const useChatStore = create<ChatState>((set) => ({
     set({
       streaming: { id: runId, toolCalls: [], text: "" },
       isRunning: true,
+      error: null,
     }),
 
   appendDelta: (delta) =>
@@ -142,22 +141,16 @@ export const useChatStore = create<ChatState>((set) => ({
     }),
 
   failStream: (code, message) =>
-    set((s) => ({
+    set({
       streaming: null,
       isRunning: false,
-      messages: [
-        ...s.messages,
-        {
-          id: newId(),
-          session_id: s.activeSessionId ?? "",
-          role: "system",
-          content: `[${code}] ${message}`,
-          created_at: new Date().toISOString(),
-        },
-      ],
-    })),
+      error: { code, message },
+    }),
 
   setRunning: (running) => set({ isRunning: running }),
 
-  reset: () => set({ messages: [], streaming: null, toolResults: {} }),
+  setError: (code, message) => set({ error: { code, message } }),
+  clearError: () => set({ error: null }),
+
+  reset: () => set({ messages: [], streaming: null, toolResults: {}, error: null }),
 }));

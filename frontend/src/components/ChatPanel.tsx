@@ -2,6 +2,7 @@ import { Composer } from "./Composer";
 import { MessageBubble } from "./MessageBubble";
 import { ToolCallCard } from "./ToolCallCard";
 import { EmptyState } from "./EmptyState";
+import { ErrorBanner } from "./ErrorBanner";
 import { useChatStore } from "@/store/chatStore";
 import { useRunStream } from "@/hooks/useRunStream";
 import { Loader2 } from "lucide-react";
@@ -11,6 +12,8 @@ export function ChatPanel() {
   const streaming = useChatStore((s) => s.streaming);
   const isRunning = useChatStore((s) => s.isRunning);
   const activeSessionId = useChatStore((s) => s.activeSessionId);
+  const error = useChatStore((s) => s.error);
+  const clearError = useChatStore((s) => s.clearError);
   const { start, stop } = useRunStream();
 
   const handleSend = async (text: string) => {
@@ -21,6 +24,13 @@ export function ChatPanel() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto px-6 py-6">
+        {error && (
+          <ErrorBanner
+            code={error.code}
+            message={error.message}
+            onClose={clearError}
+          />
+        )}
         {messages.length === 0 && !streaming ? (
           <EmptyState />
         ) : (
@@ -38,12 +48,12 @@ export function ChatPanel() {
                 >
                   {isRunning ? <Loader2 size={14} className="animate-spin" /> : "🤖"}
                 </div>
-                <div className="max-w-[80%] rounded-2xl bg-white px-4 py-2.5 text-sm leading-relaxed shadow-sm ring-1 ring-zinc-200">
-                  <div className="mb-1 text-[10px] font-medium uppercase tracking-widest opacity-60">
+                <div className="max-w-[80%] rounded-2xl bg-white px-4 py-2.5 text-sm leading-relaxed shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700">
+                  <div className="mb-1 text-[10px] font-medium uppercase tracking-widest opacity-60 dark:text-zinc-400">
                     Agent {isRunning && <span className="ml-1 text-accent">streaming…</span>}
                   </div>
                   {streaming.text && (
-                    <div className="whitespace-pre-wrap text-zinc-800">
+                    <div className="whitespace-pre-wrap text-zinc-800 dark:text-zinc-100">
                       {streaming.text}
                       {isRunning && <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-accent align-middle" />}
                     </div>
@@ -66,7 +76,7 @@ export function ChatPanel() {
           </div>
         )}
       </div>
-      <div className="border-t border-zinc-200 bg-white px-6 py-4">
+      <div className="border-t border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto max-w-3xl">
           <Composer
             disabled={isRunning || !activeSessionId}

@@ -12,7 +12,16 @@
     />
     <title>Agent Platform</title>
   </head>
-  <body class="bg-zinc-50 text-zinc-900 antialiased">
+  <body class="antialiased">
+    <script>
+      // Prevent FOUC: apply theme before React renders
+      (function() {
+        const stored = localStorage.getItem('agent-theme');
+        const theme = stored === 'dark' || stored === 'light' ? stored
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

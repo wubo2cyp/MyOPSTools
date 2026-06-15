@@ -53,13 +53,24 @@
 
 ## M6 - 打磨
 
-- ⬜ T6.1 错误态/空态/加载态
-- ⬜ T6.2 简单主题切换（亮/暗）
-- ⬜ T6.3 会话列表搜索/排序
-- ⬜ T6.4 简单可观测性（请求日志/指标）
+- ✅ T6.1 错误态/空态/加载态（Toast + ErrorBanner + chatStore 错误状态 + 各组件错误处理）
+- ✅ T6.2 简单主题切换（亮/暗）：tailwind darkMode:class + themeStore + ThemeToggle + 全局 dark: 适配
+- ✅ T6.3 会话列表搜索/排序：SessionSearchBar + useFilteredSessions（按标题搜索 + 4 种排序）
+- ✅ T6.4 简单可观测性（请求日志/指标）：requestLogger 环形缓冲区 + RequestLogPanel 抽屉 + API 拦截日志
 
 ---
 
 ## 当前 Sprint
 
-> **M5 - 真实模型**：已完成 `.env.example`、README、Cancel Run、自动标题。预生成 `run_id` 解决了 cancel 端点的竞态。所有 13 个后端单元测试通过。前端 e2e 受沙箱 SQLite 文件创建限制未跑通，但 cancel 逻辑已由 `run_registry` 与 `runtime::test_runtime_cancellation` 覆盖。
+> **M6 - 体验打磨**：已完成全部四项任务。前端 TypeScript 编译通过。新增文件：
+> - `frontend/src/store/toastStore.ts` — 全局 Toast 队列
+> - `frontend/src/components/Toast.tsx` — Toast UI 容器
+> - `frontend/src/components/ErrorBanner.tsx` — 错误横幅
+> - `frontend/src/store/themeStore.ts` — 主题状态 + localStorage 持久化
+> - `frontend/src/components/ThemeToggle.tsx` — 亮/暗切换按钮
+> - `frontend/src/components/SessionSearchBar.tsx` — 会话搜索 + 排序
+> - `frontend/src/hooks/useFilteredSessions.ts` — 过滤/排序逻辑
+> - `frontend/src/lib/requestLogger.ts` — 请求日志环形缓冲区
+> - `frontend/src/components/RequestLogPanel.tsx` — 请求日志展示面板
+> 
+> 修改文件：chatStore（error 状态）、App.tsx（ToastContainer）、ChatPanel（ErrorBanner）、Composer（dark 适配）、Sidebar（Toast + 搜索）、HomePage（ThemeToggle + RequestLogPanel + health 轮询）、MessageBubble（dark 适配）、ToolCallCard（dark 适配）、EmptyState（dark 适配）、ErrorBanner（dark 适配）、Toast（dark 适配）、api/client.ts（日志注入）、index.html（FOUC 防止）、globals.css（dark body）、tailwind.config.js（darkMode:class）。

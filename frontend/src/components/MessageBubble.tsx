@@ -26,7 +26,9 @@ export function MessageBubble({ message }: Props) {
     <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}>
       <div
         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-          isUser ? "bg-zinc-900 text-white" : "bg-accent/10 text-accent"
+          isUser
+            ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+            : "bg-accent/10 text-accent"
         }`}
         aria-hidden
       >
@@ -35,8 +37,8 @@ export function MessageBubble({ message }: Props) {
       <div
         className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm ${
           isUser
-            ? "bg-zinc-900 text-zinc-50"
-            : "bg-white text-zinc-800 ring-1 ring-zinc-200"
+            ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900"
+            : "bg-white text-zinc-800 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700"
         }`}
       >
         <div className="mb-1 text-[10px] font-medium uppercase tracking-widest opacity-60">

@@ -1,6 +1,7 @@
 import { useCallback, useRef } from "react";
 import { openRunStream } from "@/api/runs";
 import { useChatStore } from "@/store/chatStore";
+import { useToastStore } from "@/store/toastStore";
 
 /**
  * Hook that drives an SSE run end-to-end.
@@ -78,6 +79,10 @@ export function useRunStream() {
         useChatStore.getState().finalizeStream();
       } else {
         useChatStore.getState().failStream("network", err.message);
+        useToastStore.getState().addToast({
+          type: "error",
+          message: `运行失败: ${err.message}`,
+        });
       }
     } finally {
       closeRef.current = null;
