@@ -36,12 +36,12 @@
 
 ## M4 - 流式 UI
 
-- ⬜ T4.1 后端 `/runs` 端点实现 SSE
-- ⬜ T4.2 前端 `apiClient` + `sse.ts` 解析器
-- ⬜ T4.3 前端 `useRunStream` Hook
-- ⬜ T4.4 `ChatPanel` 流式渲染
-- ⬜ T4.5 `ToolCallCard` 工具调用可视化
-- ⬜ T4.6 停止按钮
+- ✅ T4.1 后端 `/runs` 端点实现 SSE
+- ✅ T4.2 前端 `apiClient` + `sse.ts` 解析器
+- ✅ T4.3 前端 `useRunStream` Hook
+- ✅ T4.4 `ChatPanel` 流式渲染
+- ✅ T4.5 `ToolCallCard` 工具调用可视化
+- ✅ T4.6 停止按钮
 
 ## M5 - 真实模型
 
@@ -59,4 +59,4 @@
 
 ## 当前 Sprint
 
-> **M3 - Agent 内核**：已完成 Tool/ModelProvider/Runtime 实现、OpenAI 集成和单元测试。下一步进入 M4 - 流式 UI。
+> **M4 - 流式 UI**：已完成 SSE 解析、useRunStream Hook、流式渲染、ToolCallCard 和停止按钮。下一步进入 M5 - 真实模型。

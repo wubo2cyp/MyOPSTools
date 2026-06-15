@@ -1,11 +1,12 @@
 import { Bot, User, Wrench } from "lucide-react";
+import type { ReactNode } from "react";
 import type { Message } from "@shared/types";
 
 interface Props {
   message: Message;
 }
 
-const ICONS: Record<Message["role"], JSX.Element> = {
+const ICONS: Record<Message["role"], ReactNode> = {
   system: <Wrench size={14} />,
   user: <User size={14} />,
   assistant: <Bot size={14} />,

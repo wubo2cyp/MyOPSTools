@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ChatPanel } from "@/components/ChatPanel";
 import { useChatStore } from "@/store/chatStore";
@@ -8,6 +8,14 @@ export function HomePage() {
   const [health, setHealth] = useState<string>("checking…");
   const sessions = useChatStore((s) => s.sessions);
   const setSessions = useChatStore((s) => s.setSessions);
+
+  const refreshSessions = useCallback(() => {
+    listSessions()
+      .then(setSessions)
+      .catch(() => {
+        /* empty list is fine */
+      });
+  }, [setSessions]);
 
   useEffect(() => {
     let cancelled = false;
@@ -20,17 +28,15 @@ export function HomePage() {
         if (!cancelled) setHealth(`error: ${(e as Error).message}`);
       }
     })();
-    listSessions().then(setSessions).catch(() => {
-      /* M1: empty list is fine */
-    });
+    refreshSessions();
     return () => {
       cancelled = true;
     };
-  }, [setSessions]);
+  }, [refreshSessions]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-zinc-50">
-      <Sidebar sessions={sessions} />
+      <Sidebar sessions={sessions} onRefresh={refreshSessions} />
       <main className="flex flex-1 flex-col">
         <header className="flex h-14 items-center justify-between border-b border-zinc-200 bg-white px-6">
           <div className="flex items-center gap-2">

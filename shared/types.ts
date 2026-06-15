@@ -48,14 +48,21 @@ export interface CreateRunReq {
   user_message: string;
 }
 
+/**
+ * Events emitted by the backend SSE stream. The Rust runtime sends
+ * snake_case JSON; the SSE parser on the frontend promotes the SSE `event:`
+ * line to `type`. The shape mirrors the runtime's `RunEvent` enum.
+ */
 export type RunEvent =
   | { type: "run.started"; run_id: string }
   | { type: "message.delta"; delta: string }
-  | { type: "message.final"; message: Message }
-  | { type: "tool.call"; call: ToolCall }
+  | { type: "tool.call"; id: string; name: string; arguments: Record<string, unknown> }
   | { type: "tool.result"; call_id: string; output: string }
-  | { type: "error"; code: string; message: string }
-  | { type: "run.finished"; run_id: string; status: "ok" | "stopped" | "error" };
+  | { type: "tool.error"; call_id: string; message: string }
+  | { type: "message.final"; message: Message }
+  | { type: "run.finished"; run_id: string; status: string }
+  | { type: "run.error"; code: string; message: string }
+  | { type: "error"; code: string; message: string };
 
 export interface ApiError {
   error: { code: string; message: string };

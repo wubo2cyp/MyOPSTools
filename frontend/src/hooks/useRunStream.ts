@@ -1,55 +1,88 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { openRunStream } from "@/api/runs";
-import type { RunEvent } from "@shared/types";
-
-interface State {
-  isRunning: boolean;
-  lastError: string | null;
-}
-
-export interface RunStreamHandle {
-  start: (sessionId: string, userMessage: string) => Promise<void>;
-  stop: () => void;
-  state: State;
-}
+import { useChatStore } from "@/store/chatStore";
 
 /**
- * Hook that drives an SSE run. Forwards every event to the supplied consumer.
+ * Hook that drives an SSE run end-to-end.
  *
- * Usage (M4):
- *   const run = useRunStream({ onEvent: (e) => store.apply(e) });
- *   run.start(sessionId, "hello");
+ * - opens a POST /sessions/:id/runs SSE stream
+ * - dispatches every event into the chat store (Zustand)
+ * - exposes `start()` and `stop()` (cancels via AbortController)
  */
-export function useRunStream({ onEvent }: { onEvent: (e: RunEvent) => void }): RunStreamHandle {
-  const [state, setState] = useState<State>({ isRunning: false, lastError: null });
+export function useRunStream() {
   const closeRef = useRef<(() => void) | null>(null);
 
   const stop = useCallback(() => {
     closeRef.current?.();
     closeRef.current = null;
-    setState((s) => ({ ...s, isRunning: false }));
   }, []);
 
-  const start = useCallback(
-    async (sessionId: string, userMessage: string) => {
-      stop();
-      setState({ isRunning: true, lastError: null });
-      try {
-        const { events, close } = await openRunStream(sessionId, { user_message: userMessage });
-        closeRef.current = close;
-        for await (const ev of events) {
-          onEvent(ev);
-          if (ev.type === "run.finished" || ev.type === "error") break;
-        }
-      } catch (e) {
-        setState({ isRunning: false, lastError: (e as Error).message });
-      } finally {
-        closeRef.current = null;
-        setState((s) => ({ ...s, isRunning: false }));
-      }
-    },
-    [onEvent, stop],
-  );
+  const start = useCallback(async (sessionId: string, userMessage: string) => {
+    // Cancel any prior run first
+    stop();
 
-  return { start, stop, state };
+    const store = useChatStore.getState();
+    store.beginStream(`run-${Date.now()}`);
+
+    // Optimistically append user message
+    store.appendMessage({
+      id: `usr-${Date.now()}`,
+      session_id: sessionId,
+      role: "user",
+      content: userMessage,
+      created_at: new Date().toISOString(),
+    });
+
+    try {
+      const { events, close } = await openRunStream(sessionId, { user_message: userMessage });
+      closeRef.current = close;
+      for await (const ev of events) {
+        // ev.type is set by the SSE parser
+        switch (ev.type) {
+          case "run.started":
+            store.beginStream(ev.run_id);
+            break;
+          case "message.delta":
+            store.appendDelta(ev.delta);
+            break;
+          case "tool.call":
+            store.recordToolCall({ id: ev.id, name: ev.name, arguments: ev.arguments });
+            break;
+          case "tool.result":
+            store.recordToolResult(ev.call_id, ev.output);
+            break;
+          case "tool.error":
+            store.recordToolError(ev.call_id, ev.message);
+            break;
+          case "message.final":
+            store.finalizeStream(ev.message);
+            break;
+          case "run.finished":
+            store.finalizeStream();
+            break;
+          case "run.error":
+            store.failStream(ev.code, ev.message);
+            break;
+          case "error":
+            store.failStream(ev.code, ev.message);
+            break;
+        }
+        if (ev.type === "run.finished" || ev.type === "error") {
+          break;
+        }
+      }
+    } catch (e) {
+      const err = e as Error;
+      if (err.name === "AbortError") {
+        // User cancelled; mark as finished without appending error
+        useChatStore.getState().finalizeStream();
+      } else {
+        useChatStore.getState().failStream("network", err.message);
+      }
+    } finally {
+      closeRef.current = null;
+    }
+  }, [stop]);
+
+  return { start, stop };
 }

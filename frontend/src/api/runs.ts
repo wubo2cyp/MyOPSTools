@@ -64,6 +64,13 @@ function parseFrame(frame: string): RunEvent | null {
   const data = dataLines.join("\n");
   try {
     const parsed = JSON.parse(data) as Record<string, unknown>;
+    // Backend tool.call events use flat fields: { id, name, arguments }.
+    // Promote to the { call: { id, name, arguments } } shape used by the
+    // shared RunEvent type so consumers have a single shape to handle.
+    if (eventName === "tool.call" && parsed && "id" in parsed && "name" in parsed) {
+      const call = { id: String(parsed.id), name: String(parsed.name), arguments: (parsed.arguments as Record<string, unknown>) ?? {} };
+      return { type: "tool.call", ...call } as RunEvent;
+    }
     return { type: eventName, ...(parsed as object) } as RunEvent;
   } catch {
     // If a frame is not JSON, surface it as a generic message.delta.
