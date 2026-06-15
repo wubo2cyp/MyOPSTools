@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM messages WHERE session_id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "00d96665e7844ffef60b5af8efdded2443e4ed4b2e4f40f9dcdbb8966f971e60"
+}

@@ -40,17 +40,9 @@ fn init_tracing() {
         .init();
 }
 
-fn cors_layer(cfg: &Config) -> CorsLayer {
-    let origins: Vec<_> = cfg
-        .cors_allow_origin
-        .split(',')
-        .map(|s| s.trim())
-        .filter(|s| !s.is_empty())
-        .map(|s| s.parse().unwrap_or_else(|_| Any.into()))
-        .collect();
-
+fn cors_layer(_cfg: &Config) -> CorsLayer {
     CorsLayer::new()
-        .allow_origin(origins)
+        .allow_origin(Any)
         .allow_methods(Any)
         .allow_headers(Any)
 }

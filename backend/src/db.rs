@@ -57,14 +57,14 @@ pub async fn run_migrations(pool: &SqlitePool) -> anyhow::Result<()> {
             continue;
         }
         let sql = tokio::fs::read_to_string(format!("migrations/{}", name)).await?;
-        // SQLx SQLite does not support multi-statement execute by default; split on ';'.
-        for stmt in sql.split(';') {
+        let stmts = parse_sql_statements(&sql);
+        for (i, stmt) in stmts.iter().enumerate() {
             let stmt = stmt.trim();
             if stmt.is_empty() {
                 continue;
             }
             sqlx::query(stmt).execute(pool).await.map_err(|e| {
-                anyhow::anyhow!("migration {} failed at statement: {}\nerr: {}", name, stmt, e)
+                anyhow::anyhow!("migration {} failed at statement {}: {}\nerr: {}", name, i, stmt, e)
             })?;
         }
         sqlx::query("INSERT INTO _migrations(name) VALUES (?)")
@@ -74,6 +74,64 @@ pub async fn run_migrations(pool: &SqlitePool) -> anyhow::Result<()> {
         tracing::info!(migration = %name, "applied");
     }
     Ok(())
+}
+
+fn parse_sql_statements(sql: &str) -> Vec<String> {
+    let mut statements = Vec::new();
+    let mut current = String::new();
+    let mut in_single_quote = false;
+    let mut in_double_quote = false;
+    let mut in_comment = false;
+    let chars: Vec<char> = sql.chars().collect();
+    let mut i = 0;
+    
+    while i < chars.len() {
+        let c = chars[i];
+        
+        if in_comment {
+            if c == '\n' {
+                in_comment = false;
+            }
+            i += 1;
+            continue;
+        }
+        
+        if c == '-' && i + 1 < chars.len() && chars[i + 1] == '-' {
+            in_comment = true;
+            i += 2;
+            continue;
+        }
+        
+        if c == '\'' && !in_double_quote {
+            in_single_quote = !in_single_quote;
+            current.push(c);
+            i += 1;
+            continue;
+        }
+        
+        if c == '"' && !in_single_quote {
+            in_double_quote = !in_double_quote;
+            current.push(c);
+            i += 1;
+            continue;
+        }
+        
+        if c == ';' && !in_single_quote && !in_double_quote {
+            statements.push(current.trim().to_string());
+            current.clear();
+            i += 1;
+            continue;
+        }
+        
+        current.push(c);
+        i += 1;
+    }
+    
+    if !current.trim().is_empty() {
+        statements.push(current.trim().to_string());
+    }
+    
+    statements
 }
 
 #[allow(dead_code)]

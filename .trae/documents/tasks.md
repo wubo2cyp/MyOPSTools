@@ -13,15 +13,16 @@
 - ✅ T1.4 创建 `frontend/` Vite + React + TS 骨架
 - ✅ T1.5 创建 `shared/` 类型定义占位
 - ✅ T1.6 创建仓库根级文件：`.gitignore`、`.editorconfig`、`README.md`
-- ⬜ T1.7 后端 `cargo build` 通过
+- ✅ T1.7 后端 `cargo build` 通过
 - ⬜ T1.8 前端 `pnpm install` + `pnpm build` 通过
 
 ## M2 - 持久化
 
-- ⬜ T2.1 编写 SQL 迁移：`users` / `sessions` / `messages` / `agents`
-- ⬜ T2.2 实现 `repo::SessionRepo` / `repo::MessageRepo`
-- ⬜ T2.3 实现 `routes::sessions` 增删改查
-- ⬜ T2.4 编写集成测试（in-memory SQLite）
+- ✅ T2.1 编写 SQL 迁移：`users` / `sessions` / `messages` / `agents`
+- ✅ T2.2 实现 `repo::SessionRepo` / `repo::MessageRepo`
+- ✅ T2.3 实现 `routes::sessions` 增删改查
+- ✅ T2.4 编写集成测试（in-memory SQLite）
+- ✅ T2.5 HTTP 端点验证通过（Session/Message CRUD）
 
 ## M3 - Agent 内核
 
@@ -58,4 +59,4 @@
 
 ## 当前 Sprint
 
-> **M1 - 项目骨架**：本文档与项目结构同步交付，等待用户审批后进入 M2。
+> **M2 - 持久化**：已完成 Session/Message CRUD 实现、集成测试和 HTTP 端点验证。下一步更新前端以调用真实 API。

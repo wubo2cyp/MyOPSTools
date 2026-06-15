@@ -8,7 +8,7 @@ pub mod http_get;
 pub mod time;
 
 pub fn builtin_tools() -> ToolRegistry {
-    let mut reg = ToolRegistry::new();
+    let reg = ToolRegistry::new();
     reg.register(EchoTool);
     reg.register(TimeTool);
     reg.register(HttpGetTool::default());

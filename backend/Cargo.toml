@@ -8,6 +8,7 @@ license = "MIT"
 [dependencies]
 # Web
 axum = { version = "0.7", features = ["macros"] }
+axum-extra = "0.9"
 tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "trace"] }
 

@@ -1,0 +1,56 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, session_id, role, content, tool_calls, tool_call_id, created_at\n             FROM messages WHERE session_id = ? ORDER BY created_at ASC",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "session_id",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "role",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "content",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "tool_calls",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "tool_call_id",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 6,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "9bf471c7c7f3dd38ba071e6cff75a07dc6dab49d4190b0be4c46f889570b3c39"
+}

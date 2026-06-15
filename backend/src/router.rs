@@ -7,7 +7,7 @@ use serde_json::json;
 
 pub fn build(state: AppState) -> Router {
     Router::new()
-        .route("/api/health", get(routes::health))
+        .route("/api/health", get(routes::health::health))
         .nest("/api", api_routes())
         .fallback(not_found)
         .with_state(state)
@@ -19,10 +19,10 @@ fn api_routes() -> Router<AppState> {
         .route(
             "/sessions/:id",
             get(routes::sessions::get)
-                .patch(routes::sessions::update)
+                .put(routes::sessions::update)
                 .delete(routes::sessions::delete),
         )
-        .route("/sessions/:id/messages", get(routes::messages::list))
+        .route("/sessions/:id/messages", get(routes::messages::list).post(routes::messages::create))
         .route("/sessions/:id/runs", axum::routing::post(routes::runs::create))
         .route(
             "/sessions/:id/runs/:run_id/cancel",

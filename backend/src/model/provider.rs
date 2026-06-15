@@ -1,6 +1,7 @@
 //! `ModelProvider` abstraction.
 
 use crate::agent::{Message, ToolDefinition};
+use crate::agent::message::ToolCall;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -17,7 +18,7 @@ pub struct ChatRequest {
 #[derive(Debug, Clone)]
 pub enum ChatResponse {
     Text(String),
-    ToolCalls { calls: Vec<crate::agent::ToolCall>, text_delta: Option<String> },
+    ToolCalls { calls: Vec<ToolCall>, text_delta: Option<String> },
 }
 
 #[derive(Debug, Error)]

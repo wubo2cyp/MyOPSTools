@@ -41,9 +41,9 @@ export async function apiPost<T, B = unknown>(path: string, body?: B): Promise<T
   return (await res.json()) as T;
 }
 
-export async function apiPatch<T, B = unknown>(path: string, body: B): Promise<T> {
+export async function apiPut<T, B = unknown>(path: string, body: B): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
-    method: "PATCH",
+    method: "PUT",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
   });
