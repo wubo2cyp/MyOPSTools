@@ -57,6 +57,7 @@
 - ✅ T6.2 简单主题切换（亮/暗）：tailwind darkMode:class + themeStore + ThemeToggle + 全局 dark: 适配
 - ✅ T6.3 会话列表搜索/排序：SessionSearchBar + useFilteredSessions（按标题搜索 + 4 种排序）
 - ✅ T6.4 简单可观测性（请求日志/指标）：requestLogger 环形缓冲区 + RequestLogPanel 抽屉 + API 拦截日志
+- ✅ T6.5 M6 组件单元测试：toastStore / Toast / ErrorBanner / ThemeToggle / SessionSearchBar / useFilteredSessions / requestLogger / RequestLogPanel / chatStore（43/43 全绿）
 
 ---
 
