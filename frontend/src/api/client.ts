@@ -1,0 +1,60 @@
+import type { ApiError } from "@shared/types";
+
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "/api";
+
+export class ApiClientError extends Error {
+  public readonly code: string;
+  public readonly status: number;
+  constructor(status: number, code: string, message: string) {
+    super(message);
+    this.status = status;
+    this.code = code;
+  }
+}
+
+async function parseError(res: Response): Promise<ApiClientError> {
+  let code = "http_error";
+  let message = `HTTP ${res.status}`;
+  try {
+    const data = (await res.json()) as ApiError;
+    if (data?.error?.code) code = data.error.code;
+    if (data?.error?.message) message = data.error.message;
+  } catch {
+    /* swallow */
+  }
+  return new ApiClientError(res.status, code, message);
+}
+
+export async function apiGet<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`);
+  if (!res.ok) throw await parseError(res);
+  return (await res.json()) as T;
+}
+
+export async function apiPost<T, B = unknown>(path: string, body?: B): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!res.ok) throw await parseError(res);
+  return (await res.json()) as T;
+}
+
+export async function apiPatch<T, B = unknown>(path: string, body: B): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw await parseError(res);
+  return (await res.json()) as T;
+}
+
+export async function apiDelete<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, { method: "DELETE" });
+  if (!res.ok) throw await parseError(res);
+  return (await res.json()) as T;
+}
+
+export const API_BASE_URL = BASE_URL;
