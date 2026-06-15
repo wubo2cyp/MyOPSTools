@@ -30,3 +30,31 @@ impl Tool for EchoTool {
         Ok(text.to_string())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[tokio::test]
+    async fn test_echo_invoke() {
+        let tool = EchoTool;
+        let result = tool.invoke(json!({ "text": "hello world" })).await.unwrap();
+        assert_eq!(result, "hello world");
+    }
+
+    #[tokio::test]
+    async fn test_echo_invoke_missing_text() {
+        let tool = EchoTool;
+        let result = tool.invoke(json!({})).await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_echo_definition() {
+        let tool = EchoTool;
+        let def = tool.definition();
+        assert_eq!(def.name, "echo");
+        assert!(!def.description.is_empty());
+    }
+}

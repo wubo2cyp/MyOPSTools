@@ -26,13 +26,13 @@
 
 ## M3 - Agent 内核
 
-- ⬜ T3.1 定义 `agent::Tool` trait 与 `ToolRegistry`
-- ⬜ T3.2 实现 `model::ModelProvider` trait
-- ⬜ T3.3 实现 `model::MockProvider`（离线可用）
-- ⬜ T3.4 实现 `model::OpenAIProvider`
-- ⬜ T3.5 实现 `agent::Runtime` 循环
-- ⬜ T3.6 内置工具：`echo` / `get_current_time` / `http_get`
-- ⬜ T3.7 单元测试
+- ✅ T3.1 定义 `agent::Tool` trait 与 `ToolRegistry`
+- ✅ T3.2 实现 `model::ModelProvider` trait
+- ✅ T3.3 实现 `model::MockProvider`（离线可用）
+- ✅ T3.4 实现 `model::OpenAIProvider`
+- ✅ T3.5 实现 `agent::Runtime` 循环
+- ✅ T3.6 内置工具：`echo` / `get_current_time` / `http_get`
+- ✅ T3.7 单元测试
 
 ## M4 - 流式 UI
 
@@ -59,4 +59,4 @@
 
 ## 当前 Sprint
 
-> **M2 - 持久化**：已完成 Session/Message CRUD 实现、集成测试和 HTTP 端点验证。下一步更新前端以调用真实 API。
+> **M3 - Agent 内核**：已完成 Tool/ModelProvider/Runtime 实现、OpenAI 集成和单元测试。下一步进入 M4 - 流式 UI。

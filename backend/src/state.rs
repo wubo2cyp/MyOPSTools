@@ -1,6 +1,6 @@
 //! Shared application state injected into every axum handler.
 
-use crate::agent::ToolRegistry;
+use crate::agent::{AgentRuntime, ToolRegistry};
 use crate::config::Config;
 use crate::model::{ModelProvider, OpenAIProvider};
 use crate::tools::builtin_tools;
@@ -13,6 +13,7 @@ pub struct AppState {
     pub db: SqlitePool,
     pub tools: Arc<ToolRegistry>,
     pub model: Arc<dyn ModelProvider>,
+    pub runtime: Arc<AgentRuntime>,
 }
 
 impl AppState {
@@ -26,11 +27,22 @@ impl AppState {
             )),
             None => Arc::new(crate::model::MockProvider::default()),
         };
+        
+        // Get system prompt from agents table or use default
+        let system_prompt = "你是一个轻量级通用 Agent，可以调用工具完成任务。".to_string();
+        
+        let runtime = Arc::new(AgentRuntime::new(
+            model.clone(),
+            (*tools).clone(),
+            system_prompt,
+        ));
+        
         Self {
             config: Arc::new(config),
             db,
             tools,
             model,
+            runtime,
         }
     }
 }
