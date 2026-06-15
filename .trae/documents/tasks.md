@@ -45,18 +45,21 @@
 
 ## M5 - 真实模型
 
-- ⬜ T5.1 `.env.example` 完善
-- ⬜ T5.2 README 启动文档
-- ⬜ T5.3 端到端冒烟测试
+- ✅ T5.1 `.env.example` 完善（OPENAI_* 与 AGENT_* 全部覆盖）
+- ✅ T5.2 README 启动文档 + API 速查 + 架构图
+- ✅ T5.3 端到端冒烟测试（MockProvider E2E 已通过）
+- ✅ T5.4 自动生成会话标题（`agent::title::generate_session_title`）
+- ✅ T5.5 取消运行中的 Run（`RunRegistry` + `runtime.run_with_cancel`）
 
 ## M6 - 打磨
 
 - ⬜ T6.1 错误态/空态/加载态
 - ⬜ T6.2 简单主题切换（亮/暗）
-- ⬜ T6.3 会话标题自动生成（用 LLM）
+- ⬜ T6.3 会话列表搜索/排序
+- ⬜ T6.4 简单可观测性（请求日志/指标）
 
 ---
 
 ## 当前 Sprint
 
-> **M4 - 流式 UI**：已完成 SSE 解析、useRunStream Hook、流式渲染、ToolCallCard 和停止按钮。下一步进入 M5 - 真实模型。
+> **M5 - 真实模型**：已完成 `.env.example`、README、Cancel Run、自动标题。预生成 `run_id` 解决了 cancel 端点的竞态。所有 13 个后端单元测试通过。前端 e2e 受沙箱 SQLite 文件创建限制未跑通，但 cancel 逻辑已由 `run_registry` 与 `runtime::test_runtime_cancellation` 覆盖。

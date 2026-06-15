@@ -1,6 +1,6 @@
 //! Shared application state injected into every axum handler.
 
-use crate::agent::{AgentRuntime, ToolRegistry};
+use crate::agent::{AgentRuntime, RunRegistry, ToolRegistry};
 use crate::config::Config;
 use crate::model::{ModelProvider, OpenAIProvider};
 use crate::tools::builtin_tools;
@@ -14,6 +14,7 @@ pub struct AppState {
     pub tools: Arc<ToolRegistry>,
     pub model: Arc<dyn ModelProvider>,
     pub runtime: Arc<AgentRuntime>,
+    pub run_registry: RunRegistry,
 }
 
 impl AppState {
@@ -28,14 +29,18 @@ impl AppState {
             None => Arc::new(crate::model::MockProvider::default()),
         };
         
-        // Get system prompt from agents table or use default
-        let system_prompt = "你是一个轻量级通用 Agent，可以调用工具完成任务。".to_string();
-        
-        let runtime = Arc::new(AgentRuntime::new(
-            model.clone(),
-            (*tools).clone(),
-            system_prompt,
-        ));
+        let runtime = Arc::new(
+            AgentRuntime::new(
+                model.clone(),
+                (*tools).clone(),
+                config.agent_system_prompt.clone(),
+            )
+            .with_limits(
+                config.agent_max_tool_calls,
+                std::time::Duration::from_millis(config.agent_tool_timeout_ms),
+            )
+            .with_temperature(config.openai_temperature),
+        );
         
         Self {
             config: Arc::new(config),
@@ -43,6 +48,7 @@ impl AppState {
             tools,
             model,
             runtime,
+            run_registry: RunRegistry::new(),
         }
     }
 }

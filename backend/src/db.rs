@@ -6,20 +6,43 @@ use std::str::FromStr;
 use std::time::Duration;
 
 pub async fn init_pool(database_url: &str) -> anyhow::Result<SqlitePool> {
-    // For sqlite://./data/agent.db style URLs, ensure parent dir exists.
+    // For sqlite://./data/agent.db style URLs, ensure the parent directory
+    // and the file itself exist. SQLite/sqlx doesn't always create the
+    // file on first open, which trips up the "open" syscall with ENOENT
+    // (sqlx error code 14) in some environments.
     if let Some(path) = database_url.strip_prefix("sqlite://") {
-        if let Some(parent) = Path::new(path).parent() {
-            if !parent.as_os_str().is_empty() {
-                std::fs::create_dir_all(parent)?;
-            }
-        }
+        ensure_sqlite_file(path)?;
+    } else if let Some(path) = database_url.strip_prefix("sqlite:") {
+        ensure_sqlite_file(path)?;
     }
+
     let pool = SqlitePoolOptions::new()
         .max_connections(8)
         .acquire_timeout(Duration::from_secs(5))
         .connect(database_url)
         .await?;
     Ok(pool)
+}
+
+fn ensure_sqlite_file(path: &str) -> anyhow::Result<()> {
+    let p = Path::new(path);
+    if let Some(parent) = p.parent() {
+        if !parent.as_os_str().is_empty() {
+            std::fs::create_dir_all(parent)?;
+        }
+    }
+    // Touch the file so it exists. `OpenOptions::create(true)` won't
+    // overwrite an existing file.
+    if !p.exists() {
+        if let Some(dir) = p.parent() {
+            let _ = std::fs::create_dir_all(dir);
+        }
+        std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(p)?;
+    }
+    Ok(())
 }
 
 /// Run all SQL files under `migrations/` in lexical order. Each migration is
